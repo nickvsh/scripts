@@ -1,0 +1,11 @@
+#2 crontab
+#@reboot /root/automount.sh
+
+#!/bin/sh
+if [ $(mount | grep 'user@server:/folder' | wc -l) -ne 1 ]
+then
+    echo 'PASSWORD' | sshfs user@server:/folder /mnt/mountpoint -o password_stdin,allow_other
+    echo 'SSHFS has been mounted.'
+else
+    echo 'SSHFS is already mounted.'
+fi
