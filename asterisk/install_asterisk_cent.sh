@@ -26,10 +26,13 @@ version_dahdi_linux=v2.11.1
 #autoreconf -i
 #./configure #--libdir=/usr/lib64
 #make && make install
+#_1. DAHDI-LINUX-COMPLETE
+#cd dahdi-linux-complete-2.X.Y+2.X.Y
+#make && make install && make config
 
-
-#LibPRI
-
+#_2. LibPRI
+#cd libpri-1.X.Y
+#make && make install
 
 #Asterisk
 #Download source
@@ -42,10 +45,6 @@ make menuselect
 make && make install && make config
 #./configure --libdir=/usr/lib64 #&& make menuselect && make && make install && make samples && make config
 
-
-=======
-
-	
 #Asterisk	https://downloads.asterisk.org/pub/telephony/asterisk/asterisk-14-current.tar.gz
 #libpri	https://downloads.asterisk.org/pub/telephony/libpri/libpri-current.tar.gz
 #dahdi-linux	https://downloads.asterisk.org/pub/telephony/dahdi-linux/dahdi-linux-current.tar.gz
