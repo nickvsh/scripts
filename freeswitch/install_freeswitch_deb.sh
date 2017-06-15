@@ -15,9 +15,10 @@ cd /usr/src/
 git clone https://freeswitch.org/stash/scm/fs/freeswitch.git -bv1.6 freeswitch
 cd freeswitch
 ./bootstrap.sh -j
-./configure
-make
-make install
+./configure -C
+sed -i 's/#asr_tts\/mod_flite/asr_tts\/mod_flite/' modules.conf
+make -j
+make install -j
 
 echo create user 'freeswitch'
 # create user 'freeswitch'
