@@ -1,0 +1,1 @@
+sed -i "s/\(^User *\)\(.*\)/\1asterisk/" /etc/apache2/apache2.conf
