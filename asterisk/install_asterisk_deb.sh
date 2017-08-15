@@ -11,8 +11,8 @@ cd asterisk*
 #need some temp dir
 cp /home/nickvsh/scripts/asterisk/menuselect.makeopts .
 ./configure
-make && make install
+make && make menuselect && make install
 #make basic-pbx
 #mkdir -p cd /etc/asterisk && 
-cd /etc/asterisk
-git clone https://github.com/nickvsh/aster_configs
+#cd /etc/asterisk
+#git clone https://github.com/nickvsh/aster_configs

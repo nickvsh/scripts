@@ -1,0 +1,3 @@
+This command should show you any users with DES password hashes.
+	sudo getent shadow|cut -d : -f 1,2|grep ":[^\$\*\!]"|cut -d : -f 1
+
