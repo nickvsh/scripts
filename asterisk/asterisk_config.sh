@@ -9,6 +9,8 @@
 #cp configs/$f.conf.sample /etc/asterisk/$f.conf;
 #done
 
-useradd asterisk && passwd asterisk
+useradd -M asterisk -D /usr/lib/asterisk #&& passwd asterisk
 chown -R asterisk:asterisk {/var/run,/var/spool,/var/lib,/var/log}/asterisk
-#chown -R root:asterisk /etc/asterisk
+chown -R root:asterisk /etc/asterisk
+chmod g+w root:asterisk /etc/asterisk
+
