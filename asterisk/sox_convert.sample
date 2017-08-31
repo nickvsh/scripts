@@ -1,0 +1,6 @@
+sudo apt-get install sox libsox-fmt-all
+yum install mpg123
+
+mpg123 -w SilentCity.wav SilentCity.mp3
+sox SilentCity.wav -t raw -r 8000 -s -2 -c 1 SilentCity.sln
+cp *.sln /var/lib/asterisk/moh
