@@ -1,0 +1,10 @@
+#remove custom kernel compiled from source
+locate -be $kernel_version_name_here | xargs -p rm -r
+VS
+(version=4.2.0-35; locate "$version" | grep -o '.*'"$(printf '%s' "$version" | sed 's/[.[\*^$]/\\&/g')"'[^/]*' | sort -u)
+
+#remove old kernel installed from package
+dpkg --list | grep linux-image
+sudo apt remove $kernel-package-here
+
+
