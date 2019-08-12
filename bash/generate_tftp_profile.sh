@@ -4,11 +4,11 @@
 DN=$1
 name=$2
 
+#upgradecode:3,0x601,0x0400,0x0100,0.0.0.0,69,0x060412a,CP7912080001SIP060412A.sbin
 cat << EOF
 #txt
 
 UIPassword:Adm1n2019
-upgradecode:3,0x601,0x0400,0x0100,0.0.0.0,69,0x060412a,CP7912080001SIP060412A.sbin
 dhcp:1
 Proxy:192.168.25.101
 UID:$DN
@@ -28,7 +28,7 @@ NumTxFrames:2
 ConnectMode:0x00000010
 TimeZone:2
 UseTftp:1
-CfgInterval:3600
+CfgInterval:86400
 TraceFlags:0x00000000
 DialPlan:911|1>#t8.r9t2-|0>#t811.rat4-|^1t4>#.-
 RingOnOffTime:2,4,25
