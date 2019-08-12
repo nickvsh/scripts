@@ -62,6 +62,10 @@ cis_text=(
 "\t\t\t 1.7.1.4 Ensure permissions on /etc/motd are configured (Scored)"
 "\t\t\t 1.7.1.5 Ensure permissions on /etc/issue are configured (Scored)"
 "\t\t\t 1.7.1.6 Ensure permissions on /etc/issue.net are configured (Scored)"
+"2 Services\n
+\t	2.2 Special Purpose Services\n
+\t\t	2.2.1 Time Synchronization\n
+\t\t\t	2.2.1.3 Ensure chrony is configured (Scored)"
 "3 Network Configuration\n
 \t 3.1 Network Parameters (Host Only)\n
 \t\t\t 3.1.1 Ensure IP forwarding is disabled (Scored)"
@@ -82,8 +86,33 @@ cis_text=(
 "\t\t 3.3.3 Ensure /etc/hosts.deny is configured (Not Scored)"
 "\t\t 3.3.4 Ensure permissions on /etc/hosts.allow are configured (Scored)"
 "\t\t 3.3.5 Ensure permissions on /etc/hosts.deny are configured (Scored)"
-# "\t 3.4 Uncommon Network Protocols
-# \t\t 3.4.1 Ensure DCCP is disabled (Not Scored)"
+"\t 3.4 Uncommon Network Protocols\n
+\t\t 3.4.1 Ensure DCCP is disabled (Not Scored)"
+"\t\t 3.4.2 Ensure SCTP is disabled (Not Scored)"
+"\t\t 3.4.3 Ensure RDS is disabled (Not Scored)"
+"\t\t 3.4.4 Ensure TIPC is disabled (Not Scored)"
+"\t 5 Access, Authentication and Authorization\n
+\t\t 5.2 SSH Server Configuration\n
+\t\t\t 5.2.1 Ensure permissions on /etc/ssh/sshd_config are configured (Scored)"
+"\t\t\t 5.2.2 Ensure permissions on SSH private host key files are configured (Scored)"
+"\t\t\t 5.2.3 Ensure permissions on SSH public host key files are configured (Scored)"
+"\t\t\t 5.2.4 Ensure SSH Protocol is set to 2 (Scored)"
+"\t\t\t	5.2.6 Ensure SSH X11 forwarding is disabled (Scored)"
+"\t\t\t	5.2.7 Ensure SSH MaxAuthTries is set to 4 or less (Scored)"
+"\t\t\t	5.2.8 Ensure SSH IgnoreRhosts is enabled (Scored)"
+"\t\t\t	5.2.9 Ensure SSH HostbasedAuthentication is disabled (Scored)"
+"\t\t\t	5.2.10 Ensure SSH root login is disabled (Scored)"
+"\t\t\t	5.2.11 Ensure SSH PermitEmptyPasswords is disabled (Scored)"
+"\t\t\t	5.2.12 Ensure SSH PermitUserEnvironment is disabled (Scored)"
+"\t\t\t	5.2.13 Ensure only strong ciphers are used (Scored)"
+"\t\t\t	5.2.14 Ensure only strong MAC algorithms are used (Scored)"
+"\t\t\t	5.2.15 Ensure only strong Key Exchange algorithms are used (Scored)"
+"\t\t\t	5.2.16 Ensure SSH Idle Timeout Interval is configured (Scored)"
+"\t\t\t	5.2.17 Ensure SSH LoginGraceTime is set to one minute or less (Scored)"
+"\t\t\t	5.2.18 Ensure SSH access is limited (Scored)"
+"\t\t\t	5.2.19 Ensure SSH warning banner is configured (Scored)"
+
+
 
 # "\t "
 # "\t\t "
@@ -270,6 +299,12 @@ chown root:root /etc/issue && chmod 644 /etc/issue
 chown root:root /etc/issue.net && chmod 644 /etc/issue.net
 '
 'scored=true
+apt-get -y install chrony
+sed -i "s/^pool 2.debian.pool.ntp.org iburst/server sdc-hq03.pzugroup.pzu.local iburst\nserver sdc-04.pzugroup.pzu.local iburst\nserver 192.168.25.22 iburst/" /etc/chrony/chrony.conf
+systemctl enable chrony
+systemctl restart chrony
+'
+'scored=true
 sysctl -w net.ipv4.ip_forward=0
 sysctl -w net.ipv6.conf.all.forwarding=0
 sysctl -w net.ipv4.route.flush=1
@@ -389,8 +424,98 @@ chown root:root /etc/hosts.allow && chmod 644 /etc/hosts.allow
 'scored=true
 chown root:root /etc/hosts.deny && chmod 644 /etc/hosts.deny
 '
-# 'scored=true
-# '
+'scored=true
+echo -e "install dccp /bin/true" > /etc/modprobe.d/dccp.conf;
+rmmod dccp > /dev/null 2>&1;
+modprobe -n -v dccp | egrep -w "install /bin/true" > /dev/null 2>&1
+'
+'scored=true
+echo -e "install sctp /bin/true" > /etc/modprobe.d/sctp.conf;
+rmmod sctp > /dev/null 2>&1;
+modprobe -n -v sctp | egrep -w "install /bin/true" > /dev/null 2>&1
+'
+'scored=true
+echo -e "install rds /bin/true" > /etc/modprobe.d/rds.conf;
+rmmod rds > /dev/null 2>&1;
+modprobe -n -v rds | egrep -w "install /bin/true" > /dev/null 2>&1
+'
+'scored=true
+echo -e "install tipc /bin/true" > /etc/modprobe.d/tipc.conf;
+rmmod tipc > /dev/null 2>&1;
+modprobe -n -v tipc | egrep -w "install /bin/true" > /dev/null 2>&1
+'
+'scored=true
+chown root:root /etc/ssh/sshd_config && chmod og-rwx /etc/ssh/sshd_config
+'
+'scored=true
+find /etc/ssh -xdev -type f -name 'ssh_host_*_key' -exec chown root:root {} \;
+find /etc/ssh -xdev -type f -name 'ssh_host_*_key' -exec chmod 0600 {} \;
+'
+'scored=true
+find /etc/ssh -xdev -type f -name 'ssh_host_*_key.pub' -exec chmod 0644 {} \;
+find /etc/ssh -xdev -type f -name 'ssh_host_*_key.pub' -exec chown root:root {} \;
+'
+'scored=true
+echo "Protocol 2" >> /etc/ssh/sshd_config
+systemctl reload sshd && grep ^Protocol /etc/ssh/sshd_config
+'
+'scored=true
+sed -i "s/X11Forwarding yes/X11Forwarding no/" /etc/ssh/sshd_config && systemctl reload sshd
+sshd -T | grep -w "x11forwarding no"
+'
+'scored=true
+echo "MaxAuthTries 4" >> /etc/ssh/sshd_config && systemctl reload sshd
+sshd -T | grep -w "maxauthtries 4"
+'
+'scored=true
+sed -i "s/^#IgnoreRhosts yes/IgnoreRhosts yes/" /etc/ssh/sshd_config && systemctl reload sshd
+sshd -T | grep -w "ignorerhosts yes"
+'
+'scored=true
+sed -i "s/^#HostbasedAuthentication no/HostbasedAuthentication no/" /etc/ssh/sshd_config && systemctl reload sshd
+sshd -T | grep "hostbasedauthentication no"
+'
+'scored=true
+sed -i "s/^#PermitRootLogin prohibit-password/PermitRootLogin no/" /etc/ssh/sshd_config && systemctl reload sshd
+sshd -T | grep -w "permitrootlogin no"
+'
+'scored=true
+sed -i "s/^#PermitEmptyPasswords no/PermitEmptyPasswords no/" /etc/ssh/sshd_config && systemctl reload sshd
+sshd -T | grep -w "permitemptypasswords no"
+'
+'scored=true
+sed -i "s/^#PermitUserEnvironment no/PermitUserEnvironment no/" /etc/ssh/sshd_config && systemctl reload sshd
+sshd -T | grep "permituserenvironment no"
+'
+'scored=true
+echo "Ciphers chacha20-poly1305@openssh.com,aes256-gcm@openssh.com,aes128-gcm@openssh.com,aes256-ctr,aes192-ctr,aes128-ctr" >> /etc/ssh/sshd_config && systemctl reload sshd
+sshd -T | grep "ciphers chacha20-poly1305@openssh.com,aes256-gcm@openssh.com,aes128-gcm@openssh.com,aes256-ctr,aes192-ctr,aes128-ctr"
+'
+'scored=true
+echo "MACs hmac-sha2-512-etm@openssh.com,hmac-sha2-256-etm@openssh.com,hmac-sha2-512,hmac-sha2-256" >> /etc/ssh/sshd_config && systemctl reload sshd
+sshd -T | grep "macs hmac-sha2-512-etm@openssh.com,hmac-sha2-256-etm@openssh.com,hmac-sha2-512,hmac-sha2-256"
+'
+'scored=true
+echo "KexAlgorithms curve25519-sha256,curve25519-sha256@libssh.org,diffie-hellman-group14-sha256,diffie-hellman-group16-sha512,diffie-hellman-group18-sha512,ecdh-sha2-nistp521,ecdh-sha2-nistp384,ecdh-sha2-nistp256,diffie-hellman-group-exchange-sha256" >> /etc/ssh/sshd_config && systemctl reload sshd
+sshd -T | grep "kexalgorithms curve25519-sha256,curve25519-sha256@libssh.org,diffie-hellman-group14-sha256,diffie-hellman-group16-sha512,diffie-hellman-group18-sha512,ecdh-sha2-nistp521,ecdh-sha2-nistp384,ecdh-sha2-nistp256,diffie-hellman-group-exchange-sha256"
+'
+'scored=true
+cat <<EOF >> /etc/ssh/sshd_config && systemctl reload sshd
+ClientAliveCountMax 0
+ClientAliveInterval 300
+EOF
+'
+'scored=true
+sed -i "s/^#LoginGraceTime 2m/LoginGraceTime 1m/" /etc/ssh/sshd_config && systemctl reload sshd
+sshd -T | grep "logingracetime 60"
+'
+'scored=true
+sshd -T | grep -w "allowusers pzu-rescue"
+'
+'scored=true
+sed -i "s/^#Banner none/Banner \/etc\/issue.net/" /etc/ssh/sshd_config && systemctl reload sshd
+sshd -T | grep banner
+'
 )
 #UP
 # mount | grep /tmp | grep noexec
@@ -402,7 +527,7 @@ chown root:root /etc/hosts.deny && chmod 644 /etc/hosts.deny
 # if [ $? -eq 0 ]; then
 # 	echo -e "--> \e[33mModule loaded.\e[0m"
 # 	echo -en "Trying to unload freevxfs kernel module...\t"
-# 	rmmod freevxfs
+# 	rmmod freevxfs:q
 # 	if [ $? -eq 0 ]; then echo -e "---> $OK"; else echo -e "---> $BAD"; fi
 # else
 # 	echo -e "---> $OK   Module NOT loaded"
